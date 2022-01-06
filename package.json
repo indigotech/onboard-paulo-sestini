@@ -4,6 +4,7 @@
   "description": "A simple server being implemented for learning purpose",
   "main": "index.js",
   "scripts": {
+    "start": "npx tsc && node js/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,8 +18,10 @@
   },
   "homepage": "https://github.com/indigotech/onboard-paulo-sestini#readme",
   "dependencies": {
-    "express": "^4.17.2",
-    "express-graphql": "^0.12.0",
+    "apollo-server": "^3.6.1",
     "graphql": "^16.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4"
   }
 }
