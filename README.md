@@ -20,7 +20,7 @@ First, run `npm install` to install the necessary packages
 
 Then, to start the server, run `npm start`
 
-### Running the query
+### Running the hello query
 
 The **hello** query can be tested by accessing _Apollo Server_ on the browser at `http://localhost:4000/`
 
@@ -38,6 +38,49 @@ Return:
 {
   "data": {
     "hello": "Hello, world!"
+  }
+}
+```
+
+### Running the **createUser** mutation
+
+input:
+
+```
+mutation createUserMutation($data: UserInput){
+  createUser(data: $data){
+    id,
+    name,
+    email,
+    birthDate
+  }
+}
+```
+
+variables:
+
+```
+{
+  "data": {
+    "name": "Paulo Otavio",
+    "email": "otavio@paulo.com",
+    "password": "1234",
+    "birthDate": "01-01-2001"
+  }
+}
+```
+
+return:
+
+```
+{
+  "data": {
+    "createUser": {
+      "id": 20,
+      "name": "Paulo Otavio",
+      "email": "otavio@paulo.com",
+      "birthDate": "01-01-2001"
+    }
   }
 }
 ```
