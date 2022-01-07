@@ -16,4 +16,11 @@ export class User {
 
   @Column()
   birthDate: string;
+
+  create({ name, email, password, birthDate }) {
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.birthDate = birthDate;
+  }
 }
