@@ -1,5 +1,6 @@
 import { Connection } from 'typeorm';
 import { User } from './entity/user';
+import { hashPassword } from './hash';
 import { validateCreateUserInput } from './validations';
 
 export const resolvers = {
@@ -18,6 +19,7 @@ export const resolvers = {
       await validateCreateUserInput(data, connection);
 
       const user = new User();
+      data.password = await hashPassword(data.password);
       user.create(data);
 
       await connection.manager.save(user);
