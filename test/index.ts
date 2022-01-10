@@ -12,9 +12,9 @@ before(async () => {
   await userRepository.clear();
 });
 
-after(() => {
+after(async () => {
   const userRepository = User.getRepository();
-  userRepository.clear();
+  await userRepository.clear();
 });
 
 describe('Access the server', () => {
