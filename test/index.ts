@@ -13,6 +13,11 @@ before(async () => {
   userRepository.clear();
 });
 
+after(() => {
+  const userRepository = User.getRepository();
+  userRepository.clear();
+});
+
 describe('Print test', () => {
   it('Printing', () => {
     console.log('Test ran');
