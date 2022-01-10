@@ -5,14 +5,17 @@ import { typeDefs } from './type-defs';
 import { resolvers } from './resolvers';
 
 export async function startServer() {
-  const connection = await createConnection().catch((error) => console.log(error));
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: { connection: connection },
-  });
+  try {
+    const connection = await createConnection();
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      context: { connection },
+    });
 
-  server.listen().then(({ url }) => {
+    const { url } = await server.listen();
     console.log(`Server ready at ${url}`);
-  });
+  } catch (e) {
+    console.error(e);
+  }
 }
