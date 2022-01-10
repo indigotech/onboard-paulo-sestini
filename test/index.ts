@@ -28,6 +28,11 @@ describe('Access the server', () => {
 });
 
 describe('Mutation createUser', () => {
+  afterEach(async () => {
+    const userRepository = User.getRepository();
+    await userRepository.clear();
+  });
+
   it('Run mutation createUser', async () => {
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
 
@@ -49,6 +54,8 @@ describe('Mutation createUser', () => {
   });
 
   it('Check hashed password', async () => {
+    await request('localhost:4000').post('/').send(queryCreateUser);
+
     const userPredefinedData = queryCreateUser.variables.data;
 
     const userRepository = User.getRepository();
@@ -60,6 +67,8 @@ describe('Mutation createUser', () => {
 
   it('Try to add duplicated email', async () => {
     const userPredefinedData = queryCreateUser.variables.data;
+
+    await request('localhost:4000').post('/').send(queryCreateUser);
 
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
     const message = response.body.errors[0].message;
