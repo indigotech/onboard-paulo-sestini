@@ -61,6 +61,11 @@ describe('Mutation createUser', () => {
   it('Try to add duplicated email', async () => {
     const userPredefinedData = queryCreateUser.variables.data;
 
+    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const message = response.body.errors[0].message;
+
+    expect(message).to.be.equal('Email is already in use');
+
     const userRepository = User.getRepository();
     const users = await userRepository.find({ email: userPredefinedData.email });
 
