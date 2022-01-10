@@ -2,7 +2,6 @@ import * as request from 'supertest';
 import { startServer } from '../src/setup';
 import { expect } from 'chai';
 import * as dotenv from 'dotenv';
-import { queryCreateUser } from './queries';
 import { User } from '../src/entity/user';
 import * as bcrypt from 'bcrypt';
 
@@ -10,7 +9,7 @@ before(async () => {
   dotenv.config({ path: __dirname + '/../test.env' });
   await startServer();
   const userRepository = User.getRepository();
-  userRepository.clear();
+  await userRepository.clear();
 });
 
 after(() => {
@@ -32,29 +31,59 @@ describe('Mutation createUser', () => {
   it('Run mutation createUser', async () => {
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
 
-    expect(response.body.data.createUser).to.have.property('id').not.undefined;
-    expect(response.body.data.createUser).to.have.property('name');
-    expect(response.body.data.createUser).to.have.property('email');
-    expect(response.body.data.createUser).to.have.property('birthDate');
-  });
+    const userPredefinedData = queryCreateUser.variables.data;
+    const responseUserInfo = response.body.data.createUser;
 
-  it('Check user on database', async () => {
+    expect(responseUserInfo.id).to.be.a('number').greaterThan(0);
+    expect(responseUserInfo.name).to.be.equal(userPredefinedData.name);
+    expect(responseUserInfo.email).to.be.equal(userPredefinedData.email);
+    expect(responseUserInfo.birthDate).to.be.equal(userPredefinedData.birthDate);
+
     const userRepository = User.getRepository();
-    const userEmail = queryCreateUser.variables.data.email;
-    const user = await userRepository.findOne({ email: userEmail });
+    const user = await userRepository.findOne({ email: userPredefinedData.email });
 
-    expect(user).to.not.be.undefined;
-    expect(user).to.have.property('id').not.undefined;
-    expect(user).to.have.property('name');
-    expect(user).to.have.property('email');
-    expect(user).to.have.property('birthDate');
+    expect(user.id).to.be.a('number');
+    expect(user.name).to.be.equal(userPredefinedData.name);
+    expect(user.email).to.be.equal(userPredefinedData.email);
+    expect(user.birthDate).to.be.equal(userPredefinedData.birthDate);
   });
 
   it('Check hashed password', async () => {
-    const userRepository = User.getRepository();
-    const user = await userRepository.findOne({ email: queryCreateUser.variables.data.email });
+    const userPredefinedData = queryCreateUser.variables.data;
 
-    const plainPassword = queryCreateUser.variables.data.password;
+    const userRepository = User.getRepository();
+    const user = await userRepository.findOne({ email: userPredefinedData.email });
+
+    const plainPassword = userPredefinedData.password;
     expect(await bcrypt.compare(plainPassword, user.password)).to.be.true;
   });
+
+  it('Try to add duplicated email', async () => {
+    const userPredefinedData = queryCreateUser.variables.data;
+
+    const userRepository = User.getRepository();
+    const users = await userRepository.find({ email: userPredefinedData.email });
+
+    expect(users.length).to.be.equal(1);
+  });
 });
+
+const queryCreateUser = {
+  query: `
+      mutation createUserMutation($data: UserInput){
+        createUser(data: $data){
+          id,
+          name,
+          email,
+          birthDate
+        }
+      }`,
+  variables: {
+    data: {
+      name: 'Paulo Otavio',
+      email: 'paulo@otavio.com',
+      password: 'abc123',
+      birthDate: '01-01-2001',
+    },
+  },
+};
