@@ -1,5 +1,6 @@
 import * as request from 'supertest';
 import { startServer } from '../src/setup';
+import { expect } from 'chai';
 
 before(async () => {
   await startServer();
@@ -17,6 +18,6 @@ describe('Access the server', () => {
       query: '{ hello }',
     });
 
-    console.log(response.text);
+    expect(response.body.data.hello).to.be.eq('Hello, world!');
   });
 });
