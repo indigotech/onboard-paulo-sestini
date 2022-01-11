@@ -75,12 +75,33 @@ describe('Mutation createUser', () => {
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
     const message = response.body.errors[0].message;
 
-    expect(message).to.be.equal('Email is already in use');
+    expect(message).to.be.equal('Email is already in use.');
 
     const userRepository = User.getRepository();
     const users = await userRepository.find({ email: userPredefinedData.email });
 
     expect(users.length).to.be.equal(1);
+  });
+
+  it('should not let password less than 6 characters long', async () => {
+    queryCreateUser.variables.data.password = 'abc';
+    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const errorMessage = response.body.errors[0].message;
+    expect(errorMessage).to.be.equal('Password is too short, needs at least 6 characters.');
+  });
+
+  it('should not let password without at least 1 digit', async () => {
+    queryCreateUser.variables.data.password = 'abcdef';
+    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const errorMessage = response.body.errors[0].message;
+    expect(errorMessage).to.be.equal('Password needs at least 1 digit.');
+  });
+
+  it('should not let password without at least 1 letter', async () => {
+    queryCreateUser.variables.data.password = '123456';
+    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const errorMessage = response.body.errors[0].message;
+    expect(errorMessage).to.be.equal('Password needs at least 1 letter.');
   });
 });
 

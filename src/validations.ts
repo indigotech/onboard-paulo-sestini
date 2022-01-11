@@ -11,14 +11,14 @@ export async function validateCreateUserInput(data, connection: Connection) {
   }
 
   if (!letterRegex.test(data.password)) {
-    throw new CustomError('Password needs at least 1 character', 400);
+    throw new CustomError('Password needs at least 1 letter.', 400);
   }
 
   if (!digitRegex.test(data.password)) {
-    throw new CustomError('Password needs at least 1 digit', 400);
+    throw new CustomError('Password needs at least 1 digit.', 400);
   }
 
   if ((await connection.manager.count(User, { where: { email: data.email } })) > 0) {
-    throw new CustomError('Email is already in use', 400);
+    throw new CustomError('Email is already in use.', 400);
   }
 }
