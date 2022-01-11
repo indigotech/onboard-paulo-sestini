@@ -33,8 +33,8 @@ describe('Mutation createUser', () => {
     const userRepository = User.getRepository();
     await userRepository.clear();
 
+    queryCreateUser.variables.data.email = defaultUserTestEmail;
     queryCreateUser.variables.data.password = defaultUserTestPassword;
-    queryLoginUser.variables.password = defaultUserTestPassword;
   });
 
   it('should create user on database and return its info', async () => {
