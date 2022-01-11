@@ -65,7 +65,7 @@ describe('Mutation createUser', () => {
     expect(await bcrypt.compare(plainPassword, user.password)).to.be.true;
   });
 
-  it('Try to add duplicated email', async () => {
+  it('should give an error if email is duplicated', async () => {
     const userPredefinedData = queryCreateUser.variables.data;
 
     await request('localhost:4000').post('/').send(queryCreateUser);
