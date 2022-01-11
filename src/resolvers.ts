@@ -3,6 +3,7 @@ import { Connection } from 'typeorm';
 import { User } from './entity/user';
 import { CustomError } from './error-handling';
 import { hashPassword, validatePassword } from './hash';
+import { generateJwt } from './token';
 import { validateCreateUserInput } from './validations';
 
 export const resolvers = {
@@ -47,7 +48,7 @@ export const resolvers = {
 
       return {
         user,
-        token: 'the_token',
+        token: generateJwt(user),
       };
     },
   },
