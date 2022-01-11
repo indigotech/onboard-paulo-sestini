@@ -36,11 +36,12 @@ export const resolvers = {
 
       if (!user) {
         throw new CustomError('User not found.', 404);
-      } else {
-        const passwordCheck = await validatePassword(password, user.password);
-        if (!passwordCheck) {
-          throw new CustomError('Wrong password, please try again.', 401);
-        }
+      }
+
+      const passwordCheck = await validatePassword(password, user.password);
+
+      if (!passwordCheck) {
+        throw new CustomError('Wrong password, please try again.', 401);
       }
 
       return {
