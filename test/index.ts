@@ -18,7 +18,7 @@ after(async () => {
 });
 
 describe('Access the server', () => {
-  it('Query hello', async () => {
+  it('should return hello world', async () => {
     const response = await request('localhost:4000').post('/').send({
       query: '{ hello }',
     });
@@ -33,7 +33,7 @@ describe('Mutation createUser', () => {
     await userRepository.clear();
   });
 
-  it('Run mutation createUser', async () => {
+  it('should create user on database and return its info', async () => {
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
 
     const userPredefinedData = queryCreateUser.variables.data;
@@ -47,13 +47,13 @@ describe('Mutation createUser', () => {
     const userRepository = User.getRepository();
     const user = await userRepository.findOne({ email: userPredefinedData.email });
 
-    expect(user.id).to.be.a('number');
+    expect(user.id).to.be.equal(responseUserInfo.id);
     expect(user.name).to.be.equal(userPredefinedData.name);
     expect(user.email).to.be.equal(userPredefinedData.email);
     expect(user.birthDate).to.be.equal(userPredefinedData.birthDate);
   });
 
-  it('Check hashed password', async () => {
+  it('should hash password', async () => {
     await request('localhost:4000').post('/').send(queryCreateUser);
 
     const userPredefinedData = queryCreateUser.variables.data;
@@ -68,7 +68,9 @@ describe('Mutation createUser', () => {
   it('should give an error if email is duplicated', async () => {
     const userPredefinedData = queryCreateUser.variables.data;
 
-    await request('localhost:4000').post('/').send(queryCreateUser);
+    const user = new User();
+    user.create(userPredefinedData);
+    await User.getRepository().save(user);
 
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
     const message = response.body.errors[0].message;
