@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Connection } from 'typeorm';
 import { User } from './entity/user';
-import { hashPassword } from './hash';
+import { CustomError } from './error-handling';
+import { hashPassword, validatePassword } from './hash';
 import { validateCreateUserInput } from './validations';
 
 export const resolvers = {
@@ -11,7 +13,6 @@ export const resolvers = {
   },
 
   Mutation: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     createUser: async (parent, args, context, info) => {
       const { data } = args;
       const connection: Connection = context.connection;
@@ -25,6 +26,27 @@ export const resolvers = {
       await connection.manager.save(user);
 
       return user;
+    },
+
+    login: async (parent, args, context, info) => {
+      const { email, password } = args;
+      const userRepository = User.getRepository();
+
+      const user = await userRepository.findOne({ email });
+
+      if (!user) {
+        throw new CustomError('User not found.', 404);
+      } else {
+        const passwordCheck = await validatePassword(password, user.password);
+        if (!passwordCheck) {
+          throw new CustomError('Wrong password, please try again.', 401);
+        }
+      }
+
+      return {
+        user,
+        token: 'the_token',
+      };
     },
   },
 };
