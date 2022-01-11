@@ -16,8 +16,8 @@ export async function startServer() {
   }
 }
 
-async function startDatabase() {
-  return await createConnection({
+function startDatabase() {
+  return createConnection({
     type: 'postgres',
     url: process.env.DB_URL,
     entities: ['src/entity/**/*.ts'],
