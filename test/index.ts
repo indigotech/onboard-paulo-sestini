@@ -85,24 +85,30 @@ describe('Mutation createUser', () => {
 
   it('should not let password less than 6 characters long', async () => {
     queryCreateUser.variables.data.password = 'abc';
+
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
     const error = response.body.errors[0];
+
     expect(error.message).to.be.equal('Password is too short, needs at least 6 characters.');
     expect(error.code).to.be.equal(400);
   });
 
   it('should not let password without at least 1 digit', async () => {
     queryCreateUser.variables.data.password = 'abcdef';
+
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
     const error = response.body.errors[0];
+
     expect(error.message).to.be.equal('Password needs at least 1 digit.');
     expect(error.code).to.be.equal(400);
   });
 
   it('should not let password without at least 1 letter', async () => {
     queryCreateUser.variables.data.password = '123456';
+
     const response = await request('localhost:4000').post('/').send(queryCreateUser);
     const error = response.body.errors[0];
+
     expect(error.message).to.be.equal('Password needs at least 1 letter.');
     expect(error.code).to.be.equal(400);
   });
