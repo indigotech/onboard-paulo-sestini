@@ -23,6 +23,6 @@ async function getUser(token) {
 
     return user;
   } catch (e) {
-    throw new CustomError('Authentication failed.', 401);
+    throw new CustomError('Authentication failed.', 401, 'Invalid JWT token.');
   }
 }

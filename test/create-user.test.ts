@@ -121,6 +121,20 @@ describe('Mutation createUser', () => {
 
     expect(error.message).to.be.equal('Authentication failed.');
     expect(error.code).to.be.equal(401);
+    expect(error.additionalInfo).to.be.equal('Missing JWT token.');
+  });
+
+  it('should not let create user if jwt token is invalid', async () => {
+    const response = await request('localhost:4000')
+      .post('/')
+      .send(queryCreateUser)
+      .set('Authorization', '8798789123123nasdjkasd89a7897');
+
+    const error = response.body.errors[0];
+
+    expect(error.message).to.be.equal('Authentication failed.');
+    expect(error.code).to.be.equal(401);
+    expect(error.additionalInfo).to.be.equal('Invalid JWT token.');
   });
 });
 
