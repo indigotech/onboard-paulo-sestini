@@ -153,18 +153,18 @@ describe('Mutation login', () => {
     const response = await request('localhost:4000').post('/').send(queryLoginUser);
     const error = response.body.errors[0];
 
-    expect(error.message).to.be.equal('Wrong password, please try again.');
+    expect(error.message).to.be.equal('Invalid email or password. Please, try again.');
     expect(error.code).to.be.equal(401);
   });
 
-  it("should inform user not found when email doesn't exist", async () => {
+  it("should not login if email doesn't exist", async () => {
     queryLoginUser.variables.email = 'another@email.com';
 
     const response = await request('localhost:4000').post('/').send(queryLoginUser);
     const error = response.body.errors[0];
 
-    expect(error.message).to.be.equal('User not found.');
-    expect(error.code).to.be.equal(404);
+    expect(error.message).to.be.equal('Invalid email or password. Please, try again.');
+    expect(error.code).to.be.equal(401);
   });
 });
 

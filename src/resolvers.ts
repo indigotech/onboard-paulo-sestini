@@ -35,13 +35,14 @@ export const resolvers = {
       const user = await userRepository.findOne({ email });
 
       if (!user) {
-        throw new CustomError('User not found.', 404);
+        await validatePassword(password, '98sldkj2387');
+        throw new CustomError('Invalid email or password. Please, try again.', 401);
       }
 
       const passwordCheck = await validatePassword(password, user.password);
 
       if (!passwordCheck) {
-        throw new CustomError('Wrong password, please try again.', 401);
+        throw new CustomError('Invalid email or password. Please, try again.', 401);
       }
 
       return {
