@@ -1,8 +1,8 @@
-import { Connection } from 'typeorm';
 import { User } from './entity/user';
 import { CustomError } from './error-handling';
 
-export async function validateCreateUserInput(data, connection: Connection) {
+export async function validateCreateUserInput(data) {
+  const userRepository = User.getRepository();
   const letterRegex = /[a-zA-Z]/g;
   const digitRegex = /\d/g;
 
@@ -18,7 +18,7 @@ export async function validateCreateUserInput(data, connection: Connection) {
     throw new CustomError('Password needs at least 1 digit.', 400);
   }
 
-  if ((await connection.manager.count(User, { where: { email: data.email } })) > 0) {
+  if ((await userRepository.count({ email: data.email })) > 0) {
     throw new CustomError('Email is already in use.', 400);
   }
 }
