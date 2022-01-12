@@ -30,7 +30,7 @@ export const resolvers = {
     },
 
     login: async (parent, args, context, info) => {
-      const { email, password } = args;
+      const { email, password, rememberMe } = args;
       const userRepository = User.getRepository();
 
       const user = await userRepository.findOne({ email });
@@ -48,7 +48,7 @@ export const resolvers = {
 
       return {
         user,
-        token: generateJwt(user),
+        token: generateJwt(user, rememberMe),
       };
     },
   },

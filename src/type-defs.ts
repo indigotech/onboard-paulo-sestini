@@ -7,7 +7,7 @@ export const typeDefs = gql`
 
   type Mutation {
     createUser(data: UserInput): User
-    login(email: String, password: String): LoginInfo
+    login(email: String, password: String, rememberMe: Boolean = false): LoginInfo
   }
 
   type User {
