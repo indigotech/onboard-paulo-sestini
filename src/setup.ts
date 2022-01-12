@@ -3,6 +3,7 @@ import { ApolloServer } from 'apollo-server';
 import { Connection, createConnection } from 'typeorm';
 import { typeDefs } from './type-defs';
 import { resolvers } from './resolvers';
+import { formatError } from './error-handling';
 
 export async function startServer() {
   try {
@@ -31,5 +32,6 @@ function startApolloServer(connection: Connection) {
     typeDefs,
     resolvers,
     context: { connection },
+    formatError: formatError,
   });
 }
