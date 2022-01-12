@@ -27,20 +27,17 @@ describe('Mutation createUser', () => {
   it('should create user on database and return its info', async () => {
     const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
     const jwtToken = generateJwt(preExistingUser, false);
-
-    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
-
     const userPredefinedData = queryCreateUser.variables.data;
+    const userRepository = User.getRepository();
+    const user = await userRepository.findOne({ email: userPredefinedData.email });
+    
+    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
     const responseUserInfo = response.body.data.createUser;
 
     expect(responseUserInfo.id).to.be.a('number').greaterThan(0);
     expect(responseUserInfo.name).to.be.equal(userPredefinedData.name);
     expect(responseUserInfo.email).to.be.equal(userPredefinedData.email);
     expect(responseUserInfo.birthDate).to.be.equal(userPredefinedData.birthDate);
-
-    const userRepository = User.getRepository();
-    const user = await userRepository.findOne({ email: userPredefinedData.email });
-
     expect(user.id).to.be.equal(responseUserInfo.id);
     expect(user.name).to.be.equal(userPredefinedData.name);
     expect(user.email).to.be.equal(userPredefinedData.email);
@@ -50,15 +47,13 @@ describe('Mutation createUser', () => {
   it('should hash password', async () => {
     const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
     const jwtToken = generateJwt(preExistingUser, false);
+    const userPredefinedData = queryCreateUser.variables.data;
+    const userRepository = User.getRepository();
+    const user = await userRepository.findOne({ email: userPredefinedData.email });
+    const plainPassword = userPredefinedData.password;
 
     await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
 
-    const userPredefinedData = queryCreateUser.variables.data;
-
-    const userRepository = User.getRepository();
-    const user = await userRepository.findOne({ email: userPredefinedData.email });
-
-    const plainPassword = userPredefinedData.password;
     expect(await bcrypt.compare(plainPassword, user.password)).to.be.true;
   });
 
@@ -67,15 +62,13 @@ describe('Mutation createUser', () => {
     const jwtToken = generateJwt(preExistingUser, false);
     const userPredefinedData = queryCreateUser.variables.data;
     userPredefinedData.email = preExistingUser.email;
+    const userRepository = User.getRepository();
+    const users = await userRepository.find({ email: userPredefinedData.email });
 
     const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
     const message = response.body.errors[0].message;
 
     expect(message).to.be.equal('Email is already in use.');
-
-    const userRepository = User.getRepository();
-    const users = await userRepository.find({ email: userPredefinedData.email });
-
     expect(users.length).to.be.equal(1);
   });
 

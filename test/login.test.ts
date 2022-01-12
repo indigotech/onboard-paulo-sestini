@@ -24,10 +24,10 @@ describe('Mutation login', () => {
   
     it('should login user and return its info and token', async () => {
       const userPredefinedData = queryCreateUser.variables.data;
+      const user = await User.getRepository().findOne({ email: userPredefinedData.email });
   
       const response = await request('localhost:4000').post('/').send(queryLoginUser);
       const responseUserInfo = response.body.data.login.user;
-      const user = await User.getRepository().findOne({ email: userPredefinedData.email });
       const decodedToken = verifyJwt(response.body.data.login.token);
       const tokenPayload = decodedToken as JwtPayload;
   
