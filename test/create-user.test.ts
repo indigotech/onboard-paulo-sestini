@@ -2,8 +2,20 @@ import * as request from 'supertest';
 import { expect } from 'chai';
 import { User } from '../src/entity/user';
 import * as bcrypt from 'bcrypt';
+import { generateJwt } from '../src/token';
 
 describe('Mutation createUser', () => {
+  beforeEach(async () => {
+    const user = new User();
+    user.create({
+      name: 'Pre-existing user',
+      email: 'existing@email.com',
+      password: 'some_password',
+      birthDate: '01-01-2001',
+    });
+    await User.getRepository().save(user);
+  });
+
   afterEach(async () => {
     const userRepository = User.getRepository();
     await userRepository.clear();
@@ -13,7 +25,10 @@ describe('Mutation createUser', () => {
   });
 
   it('should create user on database and return its info', async () => {
-    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
+    const jwtToken = generateJwt(preExistingUser, false);
+
+    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
 
     const userPredefinedData = queryCreateUser.variables.data;
     const responseUserInfo = response.body.data.createUser;
@@ -33,7 +48,10 @@ describe('Mutation createUser', () => {
   });
 
   it('should hash password', async () => {
-    await request('localhost:4000').post('/').send(queryCreateUser);
+    const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
+    const jwtToken = generateJwt(preExistingUser, false);
+
+    await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
 
     const userPredefinedData = queryCreateUser.variables.data;
 
@@ -45,13 +63,12 @@ describe('Mutation createUser', () => {
   });
 
   it('should give an error if email is duplicated', async () => {
+    const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
+    const jwtToken = generateJwt(preExistingUser, false);
     const userPredefinedData = queryCreateUser.variables.data;
+    userPredefinedData.email = preExistingUser.email;
 
-    const user = new User();
-    user.create(userPredefinedData);
-    await User.getRepository().save(user);
-
-    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
     const message = response.body.errors[0].message;
 
     expect(message).to.be.equal('Email is already in use.');
@@ -63,9 +80,11 @@ describe('Mutation createUser', () => {
   });
 
   it('should not let password less than 6 characters long', async () => {
+    const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
+    const jwtToken = generateJwt(preExistingUser, false);
     queryCreateUser.variables.data.password = 'abc';
 
-    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
     const error = response.body.errors[0];
 
     expect(error.message).to.be.equal('Password is too short, needs at least 6 characters.');
@@ -73,9 +92,11 @@ describe('Mutation createUser', () => {
   });
 
   it('should not let password without at least 1 digit', async () => {
+    const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
+    const jwtToken = generateJwt(preExistingUser, false);
     queryCreateUser.variables.data.password = 'abcdef';
 
-    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
     const error = response.body.errors[0];
 
     expect(error.message).to.be.equal('Password needs at least 1 digit.');
@@ -83,13 +104,23 @@ describe('Mutation createUser', () => {
   });
 
   it('should not let password without at least 1 letter', async () => {
+    const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
+    const jwtToken = generateJwt(preExistingUser, false);
     queryCreateUser.variables.data.password = '123456';
 
-    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
     const error = response.body.errors[0];
 
     expect(error.message).to.be.equal('Password needs at least 1 letter.');
     expect(error.code).to.be.equal(400);
+  });
+
+  it('should not let create user if not authenticated', async () => {
+    const response = await request('localhost:4000').post('/').send(queryCreateUser);
+    const error = response.body.errors[0];
+
+    expect(error.message).to.be.equal('Authentication failed.');
+    expect(error.code).to.be.equal(401);
   });
 });
 
