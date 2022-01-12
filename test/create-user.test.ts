@@ -27,11 +27,11 @@ describe('Mutation createUser', () => {
   it('should create user on database and return its info', async () => {
     const preExistingUser = await User.getRepository().findOne({ email: 'existing@email.com' });
     const jwtToken = generateJwt(preExistingUser, false);
-    const userPredefinedData = queryCreateUser.variables.data;
     const userRepository = User.getRepository();
-    const user = await userRepository.findOne({ email: userPredefinedData.email });
-    
+    const userPredefinedData = queryCreateUser.variables.data;
+
     const response = await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
+    const user = await userRepository.findOne({ email: userPredefinedData.email });
     const responseUserInfo = response.body.data.createUser;
 
     expect(responseUserInfo.id).to.be.a('number').greaterThan(0);
@@ -49,10 +49,10 @@ describe('Mutation createUser', () => {
     const jwtToken = generateJwt(preExistingUser, false);
     const userPredefinedData = queryCreateUser.variables.data;
     const userRepository = User.getRepository();
-    const user = await userRepository.findOne({ email: userPredefinedData.email });
     const plainPassword = userPredefinedData.password;
 
     await request('localhost:4000').post('/').send(queryCreateUser).set('Authorization', jwtToken);
+    const user = await userRepository.findOne({ email: userPredefinedData.email });
 
     expect(await bcrypt.compare(plainPassword, user.password)).to.be.true;
   });
