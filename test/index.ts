@@ -149,10 +149,7 @@ describe('Mutation login', () => {
     expect(responseUserInfo.name).to.be.equal(userPredefinedData.name);
     expect(responseUserInfo.email).to.be.equal(userPredefinedData.email);
     expect(responseUserInfo.birthDate).to.be.equal(userPredefinedData.birthDate);
-    expect(tokenPayload.user.id).to.be.equal(user.id);
-    expect(tokenPayload.user.name).to.be.equal(user.name);
-    expect(tokenPayload.user.email).to.be.equal(user.email);
-    expect(tokenPayload.user.password).to.be.equal(user.password);
+    expect(tokenPayload.email).to.be.equal(user.email);
   });
 
   it('should not login if password is wrong', async () => {
