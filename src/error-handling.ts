@@ -14,12 +14,11 @@ export class CustomError extends Error {
 }
 
 export function formatError(error: GraphQLError) {
-  const castedError = error.originalError as CustomError;
-  if (castedError.isActualCustomError) {
+  if (isCustomError(error.originalError)) {
     return {
       message: error.message,
-      code: castedError.code,
-      additionalInfo: castedError.additionalInfo,
+      code: error.originalError.code,
+      additionalInfo: error.originalError.additionalInfo,
     };
   } else {
     return {
@@ -28,4 +27,9 @@ export function formatError(error: GraphQLError) {
       additionalInfo: error.message,
     };
   }
+}
+
+function isCustomError(error: Error): error is CustomError {
+  const castedError = error as CustomError;
+  return castedError.isActualCustomError;
 }
