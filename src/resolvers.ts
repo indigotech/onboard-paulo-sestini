@@ -3,6 +3,7 @@ import { Connection } from 'typeorm';
 import { User } from './entity/user';
 import { CustomError } from './error-handling';
 import { hashPassword, validatePassword } from './hash';
+import { generateJwt } from './token';
 import { validateCreateUserInput } from './validations';
 
 export const resolvers = {
@@ -29,7 +30,7 @@ export const resolvers = {
     },
 
     login: async (parent, args, context, info) => {
-      const { email, password } = args;
+      const { email, password, rememberMe } = args;
       const userRepository = User.getRepository();
 
       const user = await userRepository.findOne({ email });
@@ -47,7 +48,7 @@ export const resolvers = {
 
       return {
         user,
-        token: 'the_token',
+        token: generateJwt(user, rememberMe),
       };
     },
   },

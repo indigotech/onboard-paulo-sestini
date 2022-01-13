@@ -5,6 +5,8 @@ import * as dotenv from 'dotenv';
 import { User } from '../src/entity/user';
 import * as bcrypt from 'bcrypt';
 import { hashPassword } from '../src/hash';
+import { verifyJwt } from '../src/token';
+import { JwtPayload } from 'jsonwebtoken';
 
 before(async () => {
   dotenv.config({ path: __dirname + '/../test.env' });
@@ -139,12 +141,15 @@ describe('Mutation login', () => {
 
     const response = await request('localhost:4000').post('/').send(queryLoginUser);
     const responseUserInfo = response.body.data.login.user;
+    const user = await User.getRepository().findOne({ email: userPredefinedData.email });
+    const decodedToken = verifyJwt(response.body.data.login.token);
+    const tokenPayload = decodedToken as JwtPayload;
 
     expect(responseUserInfo.id).to.be.a('number').greaterThan(0);
     expect(responseUserInfo.name).to.be.equal(userPredefinedData.name);
     expect(responseUserInfo.email).to.be.equal(userPredefinedData.email);
     expect(responseUserInfo.birthDate).to.be.equal(userPredefinedData.birthDate);
-    expect(response.body.data.login.token).to.be.equal('the_token');
+    expect(tokenPayload.email).to.be.equal(user.email);
   });
 
   it('should not login if password is wrong', async () => {
