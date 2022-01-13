@@ -18,7 +18,7 @@ export async function startServer() {
   }
 }
 
-function startDatabase() {
+export function startDatabase() {
   return createConnection({
     type: 'postgres',
     url: process.env.DB_URL,
@@ -28,7 +28,7 @@ function startDatabase() {
   });
 }
 
-function startApolloServer() {
+export function startApolloServer() {
   return new ApolloServer({
     typeDefs,
     resolvers,
