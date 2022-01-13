@@ -1,10 +1,7 @@
 import * as request from 'supertest';
 import { expect } from 'chai';
 import { User } from '../src/entity/user';
-import { hashPassword } from '../src/hash';
-import { generateJwt, verifyJwt } from '../src/token';
-import { JwtPayload } from 'jsonwebtoken';
-import { gql } from 'apollo-server';
+import { generateJwt } from '../src/token';
 
 describe('Query user', () => {
   beforeEach(async () => {
