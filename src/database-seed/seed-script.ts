@@ -16,8 +16,7 @@ async function generateUser() {
   return user;
 }
 
-async function populateDatabase(quantity = 50) {
-  await startDatabase();
+export async function populateDatabase(quantity = 50) {
   const userRepository = User.getRepository();
   const users: User[] = [];
 
@@ -28,4 +27,9 @@ async function populateDatabase(quantity = 50) {
   await userRepository.save(users);
 }
 
-populateDatabase();
+async function startSeed() {
+  await startDatabase();
+  await populateDatabase(50);
+}
+
+startSeed();
