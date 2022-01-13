@@ -1,27 +1,22 @@
 import { CustomError } from './error-handling';
 import { verifyJwt } from './token';
-import { User } from './entity/user';
 import { JwtPayload } from 'jsonwebtoken';
 
-export function authenticateUser({ req }) {
+export function getAuthenticatedUserId({ req }) {
   const token = req.headers.authorization || '';
 
   if (token) {
-    const user = getUser(token);
-    return { user };
+    const userId = getUserId(token);
+    return { userId };
   }
 }
 
-async function getUser(token) {
+async function getUserId(token: string) {
   try {
     const decodedToken = verifyJwt(token);
     const tokenPayload = decodedToken as JwtPayload;
 
-    const userRepository = User.getRepository();
-
-    const user = userRepository.findOne({ email: tokenPayload.email });
-
-    return user;
+    return tokenPayload.userId;
   } catch (e) {
     throw new CustomError('Authentication failed.', 401, 'Invalid JWT token.');
   }

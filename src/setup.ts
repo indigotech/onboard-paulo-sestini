@@ -4,7 +4,7 @@ import { createConnection } from 'typeorm';
 import { typeDefs } from './type-defs';
 import { resolvers } from './resolvers';
 import { formatError } from './error-handling';
-import { authenticateUser } from './authentication';
+import { getAuthenticatedUserId } from './authentication';
 
 export async function startServer() {
   try {
@@ -32,7 +32,7 @@ function startApolloServer() {
   return new ApolloServer({
     typeDefs,
     resolvers,
-    context: authenticateUser,
+    context: getAuthenticatedUserId,
     formatError: formatError,
   });
 }

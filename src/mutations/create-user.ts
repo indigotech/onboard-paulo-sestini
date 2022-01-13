@@ -4,9 +4,9 @@ import { hashPassword } from '../hash';
 import { validateCreateUserInput } from '../validations';
 
 export async function createUser(_: unknown, args, context): Promise<User> {
-  const loggedUser = await context.user;
+  const loggedUserId = await context.userId;
 
-  if (!loggedUser) {
+  if (!loggedUserId) {
     throw new CustomError('Authentication failed.', 401, 'Missing JWT token.');
   }
 
