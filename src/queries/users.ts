@@ -1,7 +1,13 @@
 import { CustomError } from '../error-handling';
 import { User } from '../entity/user';
+import contextParams from '../context-interface';
 
-export async function users(_: unknown, args, context) {
+interface getUsersArgs {
+  quantity: number;
+  skip: number;
+}
+
+export async function getUsers(args: getUsersArgs, context: contextParams) {
   const loggedUserId = await context.userId;
 
   if (!loggedUserId) {
