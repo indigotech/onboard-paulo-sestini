@@ -103,6 +103,19 @@ describe('Query users', () => {
     expect(response.body.data.users.quantity).to.be.equal(defaultNumberOfUsersToGenerate - queryUsers.variables.skip);
   });
 
+  it('should return empty list if skip if greater than amount of users', async () => {
+    queryUsers.variables.skip = defaultNumberOfUsersToGenerate + 1;
+    queryUsers.variables.quantity = defaultNumberOfUsersToGenerate;
+    const userRepository = User.getRepository();
+    const someUser = await userRepository.findOne();
+    const token = generateJwt(someUser, false);
+
+    const response = await request('localhost:4000').post('/').send(queryUsers).set('Authorization', token);
+
+    expect(response.body.data.users.quantity).to.be.equal(0);
+    expect(response.body.data.users.users).to.be.empty;
+  });
+
   it('should block access if token is invalid', async () => {
     const response = await request('localhost:4000')
       .post('/')
