@@ -4,7 +4,7 @@
   "description": "A simple server being implemented for learning purpose",
   "main": "index.js",
   "scripts": {
-    "seeds": "ts-node src/database-seed/seed-script.ts",
+    "seeds": "ts-node src/database-seed/index.ts",
     "start": "ts-node src/index.ts",
     "test": "mocha test/index.ts",
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"

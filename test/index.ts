@@ -17,3 +17,5 @@ after(async () => {
 require('./create-user.test.ts');
 require('./login.test.ts');
 require('./user.test.ts');
+require('./users.test.ts');
+
