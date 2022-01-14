@@ -42,10 +42,13 @@ describe('Query user', () => {
     const response = await request('localhost:4000').post('/').send(queryUser).set('Authorization', firstUserToken);
     const responseUserData = response.body.data.user;
 
-    expect(responseUserData.id).to.be.equal(secondUser.id);
-    expect(responseUserData.name).to.be.equal(secondUser.name);
-    expect(responseUserData.email).to.be.equal(secondUser.email);
-    expect(responseUserData.birthDate).to.be.equal(secondUser.birthDate);
+    expect(responseUserData).to.be.deep.equal({
+      id: secondUser.id,
+      name: secondUser.name,
+      email: secondUser.email,
+      birthDate: secondUser.birthDate,
+      addresses: secondUser.addresses,
+    });
   });
 
   it('should inform user not found when id is invalid', async () => {
@@ -104,14 +107,16 @@ describe('Query user', () => {
     const responseAddresses = response.body.data.user.addresses;
 
     for (let i = 0; i < addresses.length; i++) {
-      expect(responseAddresses[i].cep).to.be.equal(addresses[i].cep);
-      expect(responseAddresses[i].street).to.be.equal(addresses[i].street);
-      expect(responseAddresses[i].streetNumber).to.be.equal(addresses[i].streetNumber);
-      expect(responseAddresses[i].neighborhood).to.be.equal(addresses[i].neighborhood);
-      expect(responseAddresses[i].city).to.be.equal(addresses[i].city);
-      expect(responseAddresses[i].state).to.be.equal(addresses[i].state);
-      expect(responseAddresses[i].complement).to.be.equal(addresses[i].complement);
-      expect(responseAddresses[i].id).to.be.equal(addresses[i].id);
+      expect(responseAddresses[i]).to.be.deep.equal({
+        cep: addresses[i].cep,
+        street: addresses[i].street,
+        streetNumber: addresses[i].streetNumber,
+        neighborhood: addresses[i].neighborhood,
+        city: addresses[i].city,
+        state: addresses[i].state,
+        complement: addresses[i].complement,
+        id: addresses[i].id,
+      });
     }
   });
 });
@@ -125,14 +130,14 @@ const queryUser = {
         email
         birthDate
         addresses {
-          id
           cep
           street
           streetNumber
-          complement
           neighborhood
           city
           state
+          complement
+          id
         }
       }
     }

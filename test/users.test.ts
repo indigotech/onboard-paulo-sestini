@@ -38,10 +38,13 @@ describe('Query users', () => {
       const databaseUser = users[i];
       const queriedUser = responseUsers[i];
 
-      expect(queriedUser.id).to.be.equal(databaseUser.id);
-      expect(queriedUser.name).to.be.equal(databaseUser.name);
-      expect(queriedUser.email).to.be.equal(databaseUser.email);
-      expect(queriedUser.birthDate).to.be.equal(databaseUser.birthDate);
+      expect(queriedUser).to.be.deep.equal({
+        id: databaseUser.id,
+        name: databaseUser.name,
+        email: databaseUser.email,
+        birthDate: databaseUser.birthDate,
+        addresses: databaseUser.addresses,
+      });
     }
   });
 
@@ -159,14 +162,16 @@ describe('Query users', () => {
     const responseAddresses = response.body.data.users.users[0].addresses;
 
     for (let i = 0; i < addresses.length; i++) {
-      expect(responseAddresses[i].cep).to.be.equal(addresses[i].cep);
-      expect(responseAddresses[i].street).to.be.equal(addresses[i].street);
-      expect(responseAddresses[i].streetNumber).to.be.equal(addresses[i].streetNumber);
-      expect(responseAddresses[i].neighborhood).to.be.equal(addresses[i].neighborhood);
-      expect(responseAddresses[i].city).to.be.equal(addresses[i].city);
-      expect(responseAddresses[i].state).to.be.equal(addresses[i].state);
-      expect(responseAddresses[i].complement).to.be.equal(addresses[i].complement);
-      expect(responseAddresses[i].id).to.be.equal(addresses[i].id);
+      expect(responseAddresses[i]).to.be.deep.equal({
+        cep: addresses[i].cep,
+        street: addresses[i].street,
+        streetNumber: addresses[i].streetNumber,
+        neighborhood: addresses[i].neighborhood,
+        city: addresses[i].city,
+        state: addresses[i].state,
+        complement: addresses[i].complement,
+        id: addresses[i].id,
+      });
     }
   });
 });
