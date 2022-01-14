@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { User } from '../src/entity/user';
 import * as bcrypt from 'bcrypt';
 import { generateJwt } from '../src/token';
+import { clearDatabase } from './utils';
 
 describe('Mutation createUser', () => {
   beforeEach(async () => {
@@ -17,8 +18,7 @@ describe('Mutation createUser', () => {
   });
 
   afterEach(async () => {
-    const userRepository = User.getRepository();
-    await userRepository.clear();
+    await clearDatabase();
 
     queryCreateUser.variables.data.email = defaultUserTestEmail;
     queryCreateUser.variables.data.password = defaultUserTestPassword;

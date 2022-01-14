@@ -4,6 +4,7 @@ import { User } from '../src/entity/user';
 import { hashPassword } from '../src/hash';
 import { generateJwt, verifyJwt } from '../src/token';
 import { JwtPayload } from 'jsonwebtoken';
+import { clearDatabase } from './utils';
 
 describe('Mutation login', () => {
   beforeEach(async () => {
@@ -15,8 +16,7 @@ describe('Mutation login', () => {
   });
 
   afterEach(async () => {
-    const userRepository = User.getRepository();
-    await userRepository.clear();
+    await clearDatabase();
     queryLoginUser.variables.password = defaultUserTestPassword;
     queryLoginUser.variables.email = defaultUserTestEmail;
   });

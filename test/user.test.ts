@@ -2,6 +2,7 @@ import * as request from 'supertest';
 import { expect } from 'chai';
 import { User } from '../src/entity/user';
 import { generateJwt } from '../src/token';
+import { clearDatabase, generateAddresses } from './utils';
 
 describe('Query user', () => {
   beforeEach(async () => {
@@ -27,8 +28,7 @@ describe('Query user', () => {
 
   afterEach(async () => {
     queryUser.variables.id = 0;
-    const userRepository = User.getRepository();
-    await userRepository.clear();
+    await clearDatabase();
   });
 
   it('should run query and return user info', async () => {
@@ -42,10 +42,13 @@ describe('Query user', () => {
     const response = await request('localhost:4000').post('/').send(queryUser).set('Authorization', firstUserToken);
     const responseUserData = response.body.data.user;
 
-    expect(responseUserData.id).to.be.equal(secondUser.id);
-    expect(responseUserData.name).to.be.equal(secondUser.name);
-    expect(responseUserData.email).to.be.equal(secondUser.email);
-    expect(responseUserData.birthDate).to.be.equal(secondUser.birthDate);
+    expect(responseUserData).to.be.deep.equal({
+      id: secondUser.id,
+      name: secondUser.name,
+      email: secondUser.email,
+      birthDate: secondUser.birthDate,
+      addresses: secondUser.addresses,
+    });
   });
 
   it('should inform user not found when id is invalid', async () => {
@@ -86,6 +89,36 @@ describe('Query user', () => {
     expect(error.code).to.be.equal(401);
     expect(error.additionalInfo).to.be.equal('Missing JWT token.');
   });
+
+  it('should return addresses if they exist', async () => {
+    const addresses = generateAddresses();
+
+    const userRepository = User.getRepository();
+    const firstUser = await userRepository.findOne({ email: 'first@user.com' });
+    const secondUser = await userRepository.findOne({ email: 'second@user.com' });
+    secondUser.addresses = addresses;
+
+    await userRepository.save(secondUser);
+
+    const firstUserToken = generateJwt(firstUser, false);
+    queryUser.variables.id = secondUser.id;
+
+    const response = await request('localhost:4000').post('/').send(queryUser).set('Authorization', firstUserToken);
+    const responseAddresses = response.body.data.user.addresses;
+
+    for (let i = 0; i < addresses.length; i++) {
+      expect(responseAddresses[i]).to.be.deep.equal({
+        cep: addresses[i].cep,
+        street: addresses[i].street,
+        streetNumber: addresses[i].streetNumber,
+        neighborhood: addresses[i].neighborhood,
+        city: addresses[i].city,
+        state: addresses[i].state,
+        complement: addresses[i].complement,
+        id: addresses[i].id,
+      });
+    }
+  });
 });
 
 const queryUser = {
@@ -96,6 +129,16 @@ const queryUser = {
         name
         email
         birthDate
+        addresses {
+          cep
+          street
+          streetNumber
+          neighborhood
+          city
+          state
+          complement
+          id
+        }
       }
     }
   `,
