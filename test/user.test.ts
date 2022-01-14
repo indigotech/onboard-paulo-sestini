@@ -22,8 +22,7 @@ describe('Query user', () => {
       birthDate: '01-01-2001',
     });
 
-    await User.getRepository().save(firstUser);
-    await User.getRepository().save(secondUser);
+    await User.getRepository().save([firstUser, secondUser]);
   });
 
   afterEach(async () => {

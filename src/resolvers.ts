@@ -1,14 +1,14 @@
 import { createUser } from './mutations/create-user';
 import { login } from './mutations/login';
-import { user } from './queries/user';
+import { getUser } from './queries/user';
 
 export const resolvers = {
   Query: {
-    user,
+    user: (_: unknown, args, context) => getUser(args, context),
   },
 
   Mutation: {
-    createUser,
-    login,
+    createUser: (_: unknown, args, context) => createUser(args, context),
+    login: (_: unknown, args) => login(args),
   },
 };

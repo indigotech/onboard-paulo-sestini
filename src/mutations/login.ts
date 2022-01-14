@@ -3,7 +3,7 @@ import { CustomError } from '../error-handling';
 import { validatePassword } from '../hash';
 import { generateJwt } from '../token';
 
-export async function login(_: unknown, args) {
+export async function login(args: { email: string; password: string; rememberMe: boolean }) {
   const { email, password, rememberMe } = args;
   const userRepository = User.getRepository();
 

@@ -3,7 +3,19 @@ import { CustomError } from '../error-handling';
 import { hashPassword } from '../hash';
 import { validateCreateUserInput } from '../validations';
 
-export async function createUser(_: unknown, args, context): Promise<User> {
+export async function createUser(
+  args: {
+    data: {
+      name: string;
+      email: string;
+      password: string;
+      birthDate: string;
+    };
+  },
+  context: {
+    userId: Promise<number>;
+  },
+): Promise<User> {
   const loggedUserId = await context.userId;
 
   if (!loggedUserId) {
