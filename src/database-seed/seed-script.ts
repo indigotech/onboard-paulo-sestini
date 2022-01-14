@@ -27,5 +27,5 @@ export async function populateDatabase(quantity = 50) {
 
 export async function startSeed() {
   await startDatabase();
-  await populateDatabase(50);
+  await populateDatabase();
 }
