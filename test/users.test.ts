@@ -3,6 +3,7 @@ import { User } from '../src/entity/user';
 import * as request from 'supertest';
 import { expect } from 'chai';
 import { generateJwt } from '../src/token';
+import { clearDatabase, generateAddresses } from './utils';
 
 describe('Query users', () => {
   before(async () => {
@@ -15,8 +16,7 @@ describe('Query users', () => {
   });
 
   after(async () => {
-    const userRepository = User.getRepository();
-    await userRepository.clear();
+    await clearDatabase();
   });
 
   it('should return users ordered by name with right quantity', async () => {
@@ -136,22 +136,65 @@ describe('Query users', () => {
     expect(error.code).to.be.equal(401);
     expect(error.additionalInfo).to.be.equal('Missing JWT token.');
   });
+
+  it('should return addresses if they exist', async () => {
+    queryUsers.variables.quantity = 1;
+    queryUsers.variables.skip = 0;
+
+    const addresses = generateAddresses();
+
+    const userRepository = User.getRepository();
+    const users = await userRepository.find({
+      order: { name: 'ASC' },
+      take: 1,
+      skip: 0,
+    });
+    users[0].addresses = addresses;
+    await userRepository.save(users[0]);
+
+    const someUser = await userRepository.findOne();
+    const token = generateJwt(someUser, false);
+
+    const response = await request('localhost:4000').post('/').send(queryUsers).set('Authorization', token);
+    const responseAddresses = response.body.data.users.users[0].addresses;
+
+    for (let i = 0; i < addresses.length; i++) {
+      expect(responseAddresses[i].cep).to.be.equal(addresses[i].cep);
+      expect(responseAddresses[i].street).to.be.equal(addresses[i].street);
+      expect(responseAddresses[i].streetNumber).to.be.equal(addresses[i].streetNumber);
+      expect(responseAddresses[i].neighborhood).to.be.equal(addresses[i].neighborhood);
+      expect(responseAddresses[i].city).to.be.equal(addresses[i].city);
+      expect(responseAddresses[i].state).to.be.equal(addresses[i].state);
+      expect(responseAddresses[i].complement).to.be.equal(addresses[i].complement);
+      expect(responseAddresses[i].id).to.be.equal(addresses[i].id);
+    }
+  });
 });
 
 const defaultNumberOfUsersToGenerate = 12;
 
 const queryUsers = {
   query: `
-    query getUsers($quantity: Int, $skip: Int){
-      users(quantity: $quantity, skip: $skip){
+    query getUsers($quantity: Int, $skip: Int) {
+      users(quantity: $quantity, skip: $skip) {
         users {
-            id,
-            name,
-            email,
-            birthDate
-        },
-        quantity,
-        hasBefore,
+          id
+          name
+          email
+          birthDate
+          addresses {
+            id
+            cep
+            street
+            streetNumber
+            complement
+            neighborhood
+            city
+            state
+          }
+        }
+        quantity
+        hasBefore
         hasAfter
       }
     }

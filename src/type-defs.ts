@@ -16,6 +16,18 @@ export const typeDefs = gql`
     name: String!
     email: String!
     birthDate: String!
+    addresses: [Address!]
+  }
+
+  type Address {
+    id: Int!
+    cep: String!
+    street: String!
+    streetNumber: Int!
+    complement: String
+    neighborhood: String!
+    city: String!
+    state: String!
   }
 
   type LoginInfo {

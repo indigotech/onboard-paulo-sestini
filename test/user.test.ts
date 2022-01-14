@@ -2,6 +2,7 @@ import * as request from 'supertest';
 import { expect } from 'chai';
 import { User } from '../src/entity/user';
 import { generateJwt } from '../src/token';
+import { clearDatabase, generateAddresses } from './utils';
 
 describe('Query user', () => {
   beforeEach(async () => {
@@ -27,8 +28,7 @@ describe('Query user', () => {
 
   afterEach(async () => {
     queryUser.variables.id = 0;
-    const userRepository = User.getRepository();
-    await userRepository.clear();
+    await clearDatabase();
   });
 
   it('should run query and return user info', async () => {
@@ -86,6 +86,34 @@ describe('Query user', () => {
     expect(error.code).to.be.equal(401);
     expect(error.additionalInfo).to.be.equal('Missing JWT token.');
   });
+
+  it('should return addresses if they exist', async () => {
+    const addresses = generateAddresses();
+
+    const userRepository = User.getRepository();
+    const firstUser = await userRepository.findOne({ email: 'first@user.com' });
+    const secondUser = await userRepository.findOne({ email: 'second@user.com' });
+    secondUser.addresses = addresses;
+
+    await userRepository.save(secondUser);
+
+    const firstUserToken = generateJwt(firstUser, false);
+    queryUser.variables.id = secondUser.id;
+
+    const response = await request('localhost:4000').post('/').send(queryUser).set('Authorization', firstUserToken);
+    const responseAddresses = response.body.data.user.addresses;
+
+    for (let i = 0; i < addresses.length; i++) {
+      expect(responseAddresses[i].cep).to.be.equal(addresses[i].cep);
+      expect(responseAddresses[i].street).to.be.equal(addresses[i].street);
+      expect(responseAddresses[i].streetNumber).to.be.equal(addresses[i].streetNumber);
+      expect(responseAddresses[i].neighborhood).to.be.equal(addresses[i].neighborhood);
+      expect(responseAddresses[i].city).to.be.equal(addresses[i].city);
+      expect(responseAddresses[i].state).to.be.equal(addresses[i].state);
+      expect(responseAddresses[i].complement).to.be.equal(addresses[i].complement);
+      expect(responseAddresses[i].id).to.be.equal(addresses[i].id);
+    }
+  });
 });
 
 const queryUser = {
@@ -96,6 +124,16 @@ const queryUser = {
         name
         email
         birthDate
+        addresses {
+          id
+          cep
+          street
+          streetNumber
+          complement
+          neighborhood
+          city
+          state
+        }
       }
     }
   `,

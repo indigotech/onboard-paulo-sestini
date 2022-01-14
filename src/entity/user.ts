@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany } from 'typeorm';
+import { Address } from './address';
 
 @Entity()
 export class User extends BaseEntity {
@@ -16,6 +17,9 @@ export class User extends BaseEntity {
 
   @Column()
   birthDate: string;
+
+  @OneToMany(() => Address, (address) => address.user, { cascade: true, eager: true })
+  addresses: Address[];
 
   create({ name, email, password, birthDate }) {
     this.name = name;

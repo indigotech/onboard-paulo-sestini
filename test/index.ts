@@ -1,21 +1,18 @@
 import { startServer } from '../src/setup';
 import * as dotenv from 'dotenv';
-import { User } from '../src/entity/user';
+import { clearDatabase } from './utils';
 
 before(async () => {
   dotenv.config({ path: __dirname + '/../test.env' });
   await startServer();
-  const userRepository = User.getRepository();
-  await userRepository.clear();
+  await clearDatabase();
 });
 
 after(async () => {
-  const userRepository = User.getRepository();
-  await userRepository.clear();
+  await clearDatabase();
 });
 
 require('./create-user.test.ts');
 require('./login.test.ts');
 require('./user.test.ts');
 require('./users.test.ts');
-
