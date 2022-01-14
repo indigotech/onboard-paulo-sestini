@@ -1,9 +1,19 @@
+import contextParams from '../context-interface';
 import { User } from '../entity/user';
 import { CustomError } from '../error-handling';
 import { hashPassword } from '../hash';
 import { validateCreateUserInput } from '../validations';
 
-export async function createUser(_: unknown, args, context): Promise<User> {
+interface createUserArgs {
+  data: {
+    name: string;
+    email: string;
+    password: string;
+    birthDate: string;
+  };
+}
+
+export async function createUser(args: createUserArgs, context: contextParams): Promise<User> {
   const loggedUserId = await context.userId;
 
   if (!loggedUserId) {

@@ -118,7 +118,6 @@ describe('Mutation createUser', () => {
   });
 
   it('should not let create user if jwt token is invalid', async () => {
-    console.log('Start: ');
     const response = await request('localhost:4000')
       .post('/')
       .send(queryCreateUser)
@@ -137,14 +136,15 @@ const defaultUserTestPassword = 'abc123';
 
 const queryCreateUser = {
   query: `
-        mutation createUserMutation($data: UserInput){
-          createUser(data: $data){
-            id,
-            name,
-            email,
-            birthDate
-          }
-        }`,
+    mutation createUserMutation($data: UserInput) {
+      createUser(data: $data) {
+        id
+        name
+        email
+        birthDate
+      }
+    }
+  `,
   variables: {
     data: {
       name: 'Paulo Otavio',
