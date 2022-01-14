@@ -1,14 +1,15 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server';
-import { Connection, createConnection } from 'typeorm';
+import { createConnection } from 'typeorm';
 import { typeDefs } from './type-defs';
 import { resolvers } from './resolvers';
 import { formatError } from './error-handling';
+import { getAuthenticatedUserId } from './authentication';
 
 export async function startServer() {
   try {
-    const connection = await startDatabase();
-    const server = startApolloServer(connection);
+    await startDatabase();
+    const server = startApolloServer();
 
     const { url } = await server.listen();
     console.log(`Server ready at ${url}`);
@@ -27,11 +28,11 @@ function startDatabase() {
   });
 }
 
-function startApolloServer(connection: Connection) {
+function startApolloServer() {
   return new ApolloServer({
     typeDefs,
     resolvers,
-    context: { connection },
+    context: getAuthenticatedUserId,
     formatError: formatError,
   });
 }

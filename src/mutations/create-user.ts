@@ -1,8 +1,15 @@
 import { User } from '../entity/user';
+import { CustomError } from '../error-handling';
 import { hashPassword } from '../hash';
 import { validateCreateUserInput } from '../validations';
 
-export async function createUser(_: unknown, args): Promise<User> {
+export async function createUser(_: unknown, args, context): Promise<User> {
+  const loggedUserId = await context.userId;
+
+  if (!loggedUserId) {
+    throw new CustomError('Authentication failed.', 401, 'Missing JWT token.');
+  }
+
   const { data } = args;
 
   await validateCreateUserInput(data);

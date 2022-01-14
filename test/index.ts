@@ -14,6 +14,5 @@ after(async () => {
   await userRepository.clear();
 });
 
-require('./hello.test.ts');
 require('./create-user.test.ts');
 require('./login.test.ts');
