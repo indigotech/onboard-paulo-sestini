@@ -1,7 +1,12 @@
+import contextParams from '../context-interface';
 import { User } from '../entity/user';
 import { CustomError } from '../error-handling';
 
-export async function getUser(args: { id: number }, context: { userId: Promise<number> }): Promise<User> {
+interface getUserArgs {
+  id: number;
+}
+
+export async function getUser(args: getUserArgs, context: contextParams): Promise<User> {
   const loggedUserId = await context.userId;
 
   if (!loggedUserId) {
