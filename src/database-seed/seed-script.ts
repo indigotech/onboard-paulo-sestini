@@ -19,11 +19,13 @@ async function generateUser() {
 async function populateDatabase(quantity = 50) {
   await startDatabase();
   const userRepository = User.getRepository();
+  const users: User[] = [];
 
   for (let i = 0; i < quantity; i++) {
     const newUser = await generateUser();
-    await userRepository.save(newUser);
+    users.push(newUser);
   }
+  await userRepository.save(users);
 }
 
-populateDatabase(50);
+populateDatabase();
